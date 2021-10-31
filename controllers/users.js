@@ -6,15 +6,11 @@ const BadRequest = require('../errors/bad-request');
 const Conflict = require('../errors/conflict');
 
 module.exports.createUser = (req, res, next) => {
-  const {
-    name, email, password,
-  } = req.body;
-
-  bcrypt.hash(password, 10)
+  bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
-      name, email, password: hash,
+      name: req.body.name, email: req.body.email, password: hash,
     })
-      .then((user) => res.status(200).send({
+      .then(({ name, email }) => res.status(200).send({
         name, email,
       }))
       .catch((err) => {
@@ -38,6 +34,8 @@ module.exports.setUserInfo = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw new BadRequest('Произошла ошибка: переданы некорректные данные');
+      } else if (err.name === 'MongoServerError') {
+        throw new Conflict('Произошла ошибка: email уже занят');
       } else {
         next(err);
       }
@@ -47,7 +45,7 @@ module.exports.setUserInfo = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -65,13 +63,6 @@ module.exports.getUserInfo = (req, res, next) => {
     .orFail(new NotFoundError('Произошла ошибка: пользователь не найден'))
     .then((user) => {
       res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequest('Произошла ошибка: переданы некорректные данные');
-      } else {
-        next(err);
-      }
     })
     .catch(next);
 };

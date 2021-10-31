@@ -1,16 +1,9 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
+const { validateUrl } = require('../validators/myValidators');
 const {
   getMovies, createMovie, deleteMovie,
 } = require('../controllers/movie');
-
-const validateUrl = (v) => {
-  if (validator.isURL(v)) {
-    return v;
-  }
-  throw new Error('Произошла ошибка: некорректная ссылка');
-};
 
 router.get('/', getMovies);
 router.post('/', celebrate({
@@ -25,7 +18,7 @@ router.post('/', celebrate({
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
     thumbnail: Joi.string().required().custom(validateUrl),
-    movieId: Joi.string().required(),
+    movieId: Joi.number().required(),
   }),
 }), createMovie);
 router.delete('/:movieId', celebrate({

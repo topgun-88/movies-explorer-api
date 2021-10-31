@@ -52,12 +52,11 @@ module.exports.createMovie = (req, res, next) => {
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .orFail(new NotFoundError('Произошла ошибка: фильм не найден'))
-    .then((card) => {
-      if (card.owner.equals(req.user._id)) {
-        Movie.findByIdAndRemove(req.params.movieId)
-          .then((deletedMovie) => {
-            res.send(deletedMovie);
-          });
+    .then((movie) => {
+      if (movie.owner.equals(req.user._id)) {
+        movie.remove()
+          .then(() => res.send(movie))
+          .catch(next);
       } else {
         throw new Forbidden('Произошла ошибка: нет прав для удаления фильма');
       }

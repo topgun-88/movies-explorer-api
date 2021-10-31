@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
+const { validateUrl } = require('../validators/myValidators');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -25,9 +25,7 @@ const movieSchema = new mongoose.Schema({
   image: {
     type: String,
     validate: {
-      validator(v) {
-        return validator.isURL(v);
-      },
+      validator: validateUrl,
       message: 'Введите URL',
     },
     required: true,
@@ -35,9 +33,7 @@ const movieSchema = new mongoose.Schema({
   trailer: {
     type: String,
     validate: {
-      validator(v) {
-        return validator.isURL(v);
-      },
+      validator: validateUrl,
       message: 'Введите URL',
     },
     required: true,
@@ -45,9 +41,7 @@ const movieSchema = new mongoose.Schema({
   thumbnail: {
     type: String,
     validate: {
-      validator(v) {
-        return validator.isURL(v);
-      },
+      validator: validateUrl,
       message: 'Введите URL',
     },
     required: true,
@@ -58,7 +52,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
   },
   movieId: {
-    type: String,
+    type: Number,
     required: true,
   },
   nameRU: {
