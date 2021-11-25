@@ -15,9 +15,9 @@ module.exports.createUser = (req, res, next) => {
       }))
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          throw new BadRequest('Произошла ошибка: переданы некорректные данные');
+          throw new BadRequest('При регистрации пользователя произошла ошибка.');
         } else if (err.name === 'MongoServerError') {
-          throw new Conflict('Произошла ошибка: email уже занят');
+          throw new Conflict('Пользователь с таким email уже существует.');
         } else {
           next(err);
         }
@@ -29,13 +29,13 @@ module.exports.createUser = (req, res, next) => {
 module.exports.setUserInfo = (req, res, next) => {
   const { name, email } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('Произошла ошибка: пользователь не найден'))
+    .orFail(new NotFoundError('404 Страница по указанному маршруту не найдена.'))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        throw new BadRequest('Произошла ошибка: переданы некорректные данные');
+        throw new BadRequest('При обновлении профиля произошла ошибка.');
       } else if (err.name === 'MongoServerError') {
-        throw new Conflict('Произошла ошибка: email уже занят');
+        throw new Conflict('Пользователь с таким email уже существует.');
       } else {
         next(err);
       }
@@ -60,7 +60,7 @@ module.exports.login = (req, res, next) => {
 
 module.exports.getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFoundError('Произошла ошибка: пользователь не найден'))
+    .orFail(new NotFoundError('404 Страница по указанному маршруту не найдена.'))
     .then((user) => {
       res.send(user);
     })

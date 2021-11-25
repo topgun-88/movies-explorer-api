@@ -3,9 +3,8 @@ const Unauthorized = require('../errors/unauthorized');
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
-
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    next(new Unauthorized('Необходима авторизация'));
+    next(new Unauthorized('При авторизации произошла ошибка. Токен не передан или передан не в том формате.'));
     return;
   }
 
@@ -16,7 +15,7 @@ module.exports = (req, res, next) => {
     const { NODE_ENV, JWT_SECRET } = process.env;
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (err) {
-    next(new Unauthorized('Необходима авторизация'));
+    next(new Unauthorized('При авторизации произошла ошибка. Переданный токен некорректен.'));
   }
 
   req.user = payload;
